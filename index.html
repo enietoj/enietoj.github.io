@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP/CRM PyMES - Sistema de Gestión</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Login Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Main App Styles */
+        .main-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s;
+        }
+
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            border-bottom: 1px solid #34495e;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: #34495e;
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-card.green {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .metric-card.orange {
+            background: linear-gradient(135deg, #FF9800 0%, #f57c00 100%);
+        }
+
+        .metric-card.red {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+
+        .metric-card h3 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .metric-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1><i class="fas fa-building"></i> ERP/CRM PyMES</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Iniciar Sesión</button>
+            </form>
+            <div class="demo-credentials">
+                <strong>Credenciales de demostración:</strong><br>
+                <strong>Administrador:</strong> admin / admin123<br>
+                <strong>Empleado:</strong> empleado / emp123
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>ERP/CRM PyMES</h2>
+                <p id="userRole">Administrador</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" data-section="dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#" data-section="inventario"><i class="fas fa-boxes"></i> Inventario</a></li>
+                <li><a href="#" data-section="clientes"><i class="fas fa-users"></i> Clientes</a></li>
+                <li><a href="#" data-section="produccion"><i class="fas fa-industry"></i> Producción</a></li>
+                <li><a href="#" data-section="reportes"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div>
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="user-menu">
+                    <span id="currentUser">Usuario</span>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <h3 id="totalProductos">0</h3>
+                        <p>Total Productos</p>
+                    </div>
+                    <div class="metric-card green">
+                        <h3 id="totalClientes">0</h3>
+                        <p>Total Clientes</p>
+                    </div>
+                    <div class="metric-card orange">
+                        <h3 id="ordenesProduccion">0</h3>
+                        <p>Órdenes de Producción</p>
+                    </div>
+                    <div class="metric-card red">
+                        <h3 id="stockBajo">0</h3>
+                        <p>Productos con Stock Bajo</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Ventas Últimos 6 Meses</h3>
+                    <canvas id="salesChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Actividad Reciente</h3>
+                    <div id="recentActivity"></div>
+                </div>
+            </div>
+
+            <!-- Inventario Section -->
+            <div id="inventario" class="content-section">
+                <div class="form-container">
+                    <h3>Agregar/Editar Producto</h3>
+                    <form id="productForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productName">Nombre del Producto:</label>
+                                <input type="text" id="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCategory">Categoría:</label>
+                                <select id="productCategory" required>
+                                    <option value="">Seleccionar categoría</option>
+                                    <option value="materia-prima">Materia Prima</option>
+                                    <option value="productos-terminados">Productos Terminados</option>
+                                    <option value="insumos">Insumos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productStock">Stock Actual:</label>
+                                <input type="number" id="productStock" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productMinStock">Stock Mínimo:</label>
+                                <input type="number" id="productMinStock" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productPrice">Precio Unitario:</label>
+                                <input type="number" id="productPrice" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Guardar Producto</button>
+                            <button type="button" class="btn-secondary" id="cancelProductEdit">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <h3>Lista de Productos</h3>
+                    <table id="productsTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Stock Mínimo</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Clientes Section -->
+            <div id="clientes" class="content-section">
+                <div class="form-container">
+                    <h3>Agregar/Editar Cliente</h3>
+                    <form id="clientForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="clientName">Nombre/Razón Social:</label>
+                                <input type="text" id="clientName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientEmail">Email:</label>
+                                <input type="email" id="clientEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientPhone">Teléfono:</label>
+                                <input type="tel" id="clientPhone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientAddress">Dirección:</label>
+                                <input type="text" id="clientAddress" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientType">Tipo de Cliente:</label>
+                                <select id="clientType" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="minorista">Minorista</option>
+                                    <option value="mayorista">Mayorista</option>
+                                    <option value="corporativo">Corporativo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Guardar Cliente</button>
+                            <button type="button" class="btn-secondary" id="cancelClientEdit">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <h3>Lista de Clientes</h3>
+                    <table id="clientsTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Tipo</th>
+                                <th>Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Producción Section -->
+            <div id="produccion" class="content-section">
+                <div class="form-container">
+                    <h3>Nueva Orden de Producción</h3>
+                    <form id="productionForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productionProduct">Producto:</label>
+                                <select id="productionProduct" required>
+                                    <option value="">Seleccionar producto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productionQuantity">Cantidad:</label>
+                                <input type="number" id="productionQuantity" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productionDate">Fecha de Producción:</label>
+                                <input type="date" id="productionDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productionStatus">Estado:</label>
+                                <select id="productionStatus" required>
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="en-proceso">En Proceso</option>
+                                    <option value="completada">Completada</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Crear Orden</button>
+                            <button type="button" class="btn-secondary" id="cancelProductionEdit">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <h3>Órdenes de Producción</h3>
+                    <table id="productionTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productionTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reportes Section -->
+            <div id="reportes" class="content-section">
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <h3 id="reportTotalVentas">$0</h3>
+                        <p>Total Ventas (Mes)</p>
+                    </div>
+                    <div class="metric-card green">
+                        <h3 id="reportGanancias">$0</h3>
+                        <p>Ganancias Estimadas</p>
+                    </div>
+                    <div class="metric-card orange">
+                        <h3 id="reportProductosMasVendidos">0</h3>
+                        <p>Productos + Vendidos</p>
+                    </div>
+                    <div class="metric-card red">
+                        <h3 id="reportClientesActivos">0</h3>
+                        <p>Clientes Activos</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Distribución de Productos por Categoría</h3>
+                    <canvas id="categoryChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-primary" id="exportReportBtn">
+                        <i class="fas fa-download"></i> Exportar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Authentication System
+        const users = {
+            admin: { password: 'admin123', role: 'Administrador' },
+            empleado: { password: 'emp123', role: 'Empleado' }
+        };
+
+        let currentUser = null;
+        let editingIndex = -1;
+
+        // Data Storage
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        let clients = JSON.parse(localStorage.getItem('clients')) || [];
+        let productions = JSON.parse(localStorage.getItem('productions')) || [];
+
+        // Initialize sample data if empty
+        if (products.length === 0) {
+            products = [
+                { id: 1, name: 'Materia Prima A', category: 'materia-prima', stock: 100, minStock: 20, price: 25.50 },
+                { id: 2, name: 'Producto Final B', category: 'productos-terminados', stock: 15, minStock: 10, price: 150.00 },
+                { id: 3, name: 'Insumo C', category: 'insumos', stock: 5, minStock: 15, price: 8.75 }
+            ];
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        if (clients.length === 0) {
+            clients = [
+                { id: 1, name: 'Empresa ABC', email: 'contacto@abc.com', phone: '123-456-7890', address: 'Calle 123 #45-67', type: 'corporativo', registerDate: '2024-01-15' },
+                { id: 2, name: 'Tienda XYZ', email: 'info@xyz.com', phone: '098-765-4321', address: 'Carrera 89 #12-34', type: 'minorista', registerDate: '2024-02-20' }
+            ];
+            localStorage.setItem('clients', JSON.stringify(clients));
+        }
+
+        if (productions.length === 0) {
+            productions = [
+                { id: 1, productId: 2, productName: 'Producto Final B', quantity: 50, date: '2024-07-08', status: 'pendiente' },
+                { id: 2, productId: 2, productName: 'Producto Final B', quantity: 30, date: '2024-07-05', status: 'completada' }
+            ];
+            localStorage.setItem('productions', JSON.stringify(productions));
+        }
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        // Event Listeners
+        loginForm.addEventListener('submit', handleLogin);
+        logoutBtn.addEventListener('click', handleLogout);
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+
+        // Navigation
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(e.target.dataset.section);
+            });
+        });
+
+        // Functions
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (users[username] && users[username].password === password) {
+                currentUser = { username, ...users[username] };
+                document.getElementById('currentUser').textContent = currentUser.username;
+                document.getElementById('userRole').textContent = currentUser.role;
+                
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+                
+                showSection('dashboard');
+                updateDashboard();
+            } else {
+                alert('Usuario o contraseña incorrectos');
+            }
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            mainApp.style.display = 'none';
+            loginScreen.style.display = 'flex';
+            document.getElementById('loginForm').reset();
+        }
+
+        function toggleMobileMenu() {
+            sidebar.classList.toggle('mobile-hidden');
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all menu items
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Add active class to menu item
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+            
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                inventario: 'Gestión de Inventario',
+                clientes: 'Gestión de Clientes',
+                produccion: 'Gestión de Producción',
+                reportes: 'Reportes y Análisis'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionName];
+            
+            // Hide mobile menu
+            sidebar.classList.add('mobile-hidden');
+            
+            // Load section specific data
+            switch(sectionName) {
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+                case 'inventario':
+                    loadProducts();
+                    break;
+                case 'clientes':
+                    loadClients();
+                    break;
+                case 'produccion':
+                    loadProductions();
+                    loadProductionProducts();
+                    break;
+                case 'reportes':
+                    loadReports();
+                    break;
+            }
+        }
+
+        function updateDashboard() {
+            // Update metrics
+            document.getElementById('totalProductos').textContent = products.length;
+            document.getElementById('totalClientes').textContent = clients.length;
+            document.getElementById('ordenesProduccion').textContent = productions.filter(p => p.status !== 'completada').length;
+            document.getElementById('stockBajo').textContent = products.filter(p => p.stock <= p.minStock).length;
+
+            // Create sales chart
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'],
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: [12000, 15000, 13000, 18000, 16000, 22000],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Update recent activity
+            const recentActivity = document.getElementById('recentActivity');
+            recentActivity.innerHTML = `
+                <div style="padding: 10px; border-left: 4px solid #667eea; margin-bottom: 10px;">
+                    <strong>Nuevo cliente registrado:</strong> ${clients[clients.length - 1]?.name || 'N/A'}
+                </div>
+                <div style="padding: 10px; border-left: 4px solid #4CAF50; margin-bottom: 10px;">
+                    <strong>Producción completada:</strong> ${productions.filter(p => p.status === 'completada').length} órdenes
+                </div>
+                <div style="padding: 10px; border-left: 4px solid #FF9800; margin-bottom: 10px;">
+                    <strong>Stock bajo:</strong> ${products.filter(p => p.stock <= p.minStock).length} productos necesitan reposición
+                </div>
+            `;
+        }
+
+        // Product Management
+        function loadProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const stockStatus = product.stock <= product.minStock ? 
+                    '<span style="color: #dc3545; font-weight: bold;">Stock Bajo</span>' : 
+                    '<span style="color: #28a745; font-weight: bold;">OK</span>';
+
+                const row = `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${product.stock}</td>
+                        <td>${product.minStock}</td>
+                        <td>${product.price.toFixed(2)}</td>
+                        <td>${stockStatus}</td>
+                        <td>
+                            <button class="btn-primary" onclick="editProduct(${index})" style="margin-right: 5px;">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-danger" onclick="deleteProduct(${index})">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function editProduct(index) {
+            editingIndex = index;
+            const product = products[index];
+            
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productStock').value = product.stock;
+            document.getElementById('productMinStock').value = product.minStock;
+            document.getElementById('productPrice').value = product.price;
+        }
+
+        function deleteProduct(index) {
+            if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+                products.splice(index, 1);
+                localStorage.setItem('products', JSON.stringify(products));
+                loadProducts();
+                updateDashboard();
+            }
+        }
+
+        // Product form handler
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const productData = {
+                id: editingIndex === -1 ? Date.now() : products[editingIndex].id,
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                stock: parseInt(document.getElementById('productStock').value),
+                minStock: parseInt(document.getElementById('productMinStock').value),
+                price: parseFloat(document.getElementById('productPrice').value)
+            };
+
+            if (editingIndex === -1) {
+                products.push(productData);
+            } else {
+                products[editingIndex] = productData;
+                editingIndex = -1;
+            }
+
+            localStorage.setItem('products', JSON.stringify(products));
+            this.reset();
+            loadProducts();
+            updateDashboard();
+        });
+
+        document.getElementById('cancelProductEdit').addEventListener('click', function() {
+            document.getElementById('productForm').reset();
+            editingIndex = -1;
+        });
+
+        // Client Management
+        function loadClients() {
+            const tbody = document.getElementById('clientsTableBody');
+            tbody.innerHTML = '';
+
+            clients.forEach((client, index) => {
+                const row = `
+                    <tr>
+                        <td>${client.name}</td>
+                        <td>${client.email}</td>
+                        <td>${client.phone}</td>
+                        <td>${client.type}</td>
+                        <td>${client.registerDate}</td>
+                        <td>
+                            <button class="btn-primary" onclick="editClient(${index})" style="margin-right: 5px;">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-danger" onclick="deleteClient(${index})">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function editClient(index) {
+            editingIndex = index;
+            const client = clients[index];
+            
+            document.getElementById('clientName').value = client.name;
+            document.getElementById('clientEmail').value = client.email;
+            document.getElementById('clientPhone').value = client.phone;
+            document.getElementById('clientAddress').value = client.address;
+            document.getElementById('clientType').value = client.type;
+        }
+
+        function deleteClient(index) {
+            if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
+                clients.splice(index, 1);
+                localStorage.setItem('clients', JSON.stringify(clients));
+                loadClients();
+                updateDashboard();
+            }
+        }
+
+        // Client form handler
+        document.getElementById('clientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const clientData = {
+                id: editingIndex === -1 ? Date.now() : clients[editingIndex].id,
+                name: document.getElementById('clientName').value,
+                email: document.getElementById('clientEmail').value,
+                phone: document.getElementById('clientPhone').value,
+                address: document.getElementById('clientAddress').value,
+                type: document.getElementById('clientType').value,
+                registerDate: editingIndex === -1 ? new Date().toISOString().split('T')[0] : clients[editingIndex].registerDate
+            };
+
+            if (editingIndex === -1) {
+                clients.push(clientData);
+            } else {
+                clients[editingIndex] = clientData;
+                editingIndex = -1;
+            }
+
+            localStorage.setItem('clients', JSON.stringify(clients));
+            this.reset();
+            loadClients();
+            updateDashboard();
+        });
+
+        document.getElementById('cancelClientEdit').addEventListener('click', function() {
+            document.getElementById('clientForm').reset();
+            editingIndex = -1;
+        });
+
+        // Production Management
+        function loadProductions() {
+            const tbody = document.getElementById('productionTableBody');
+            tbody.innerHTML = '';
+
+            productions.forEach((production, index) => {
+                const statusColors = {
+                    'pendiente': '#ffc107',
+                    'en-proceso': '#17a2b8',
+                    'completada': '#28a745'
+                };
+
+                const row = `
+                    <tr>
+                        <td>${production.id}</td>
+                        <td>${production.productName}</td>
+                        <td>${production.quantity}</td>
+                        <td>${production.date}</td>
+                        <td><span style="color: ${statusColors[production.status]}; font-weight: bold;">${production.status}</span></td>
+                        <td>
+                            <button class="btn-primary" onclick="editProduction(${index})" style="margin-right: 5px;">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn-danger" onclick="deleteProduction(${index})">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function loadProductionProducts() {
+            const select = document.getElementById('productionProduct');
+            select.innerHTML = '<option value="">Seleccionar producto</option>';
+            
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = product.name;
+                select.appendChild(option);
+            });
+        }
+
+        function editProduction(index) {
+            editingIndex = index;
+            const production = productions[index];
+            
+            document.getElementById('productionProduct').value = production.productId;
+            document.getElementById('productionQuantity').value = production.quantity;
+            document.getElementById('productionDate').value = production.date;
+            document.getElementById('productionStatus').value = production.status;
+        }
+
+        function deleteProduction(index) {
+            if (confirm('¿Está seguro de que desea eliminar esta orden de producción?')) {
+                productions.splice(index, 1);
+                localStorage.setItem('productions', JSON.stringify(productions));
+                loadProductions();
+                updateDashboard();
+            }
+        }
+
+        // Production form handler
+        document.getElementById('productionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const productId = parseInt(document.getElementById('productionProduct').value);
+            const product = products.find(p => p.id === productId);
+            
+            const productionData = {
+                id: editingIndex === -1 ? Date.now() : productions[editingIndex].id,
+                productId: productId,
+                productName: product.name,
+                quantity: parseInt(document.getElementById('productionQuantity').value),
+                date: document.getElementById('productionDate').value,
+                status: document.getElementById('productionStatus').value
+            };
+
+            if (editingIndex === -1) {
+                productions.push(productionData);
+            } else {
+                productions[editingIndex] = productionData;
+                editingIndex = -1;
+            }
+
+            localStorage.setItem('productions', JSON.stringify(productions));
+            this.reset();
+            loadProductions();
+            updateDashboard();
+        });
+
+        document.getElementById('cancelProductionEdit').addEventListener('click', function() {
+            document.getElementById('productionForm').reset();
+            editingIndex = -1;
+        });
+
+        // Reports Management
+        function loadReports() {
+            // Calculate metrics
+            const totalSales = productions.filter(p => p.status === 'completada')
+                .reduce((sum, p) => {
+                    const product = products.find(prod => prod.id === p.productId);
+                    return sum + (product ? product.price * p.quantity : 0);
+                }, 0);
+
+            const estimatedProfits = totalSales * 0.3; // 30% profit margin
+            const mostSoldProducts = productions.filter(p => p.status === 'completada').length;
+            const activeClients = clients.length;
+
+            document.getElementById('reportTotalVentas').textContent = `${totalSales.toFixed(2)}`;
+            document.getElementById('reportGanancias').textContent = `${estimatedProfits.toFixed(2)}`;
+            document.getElementById('reportProductosMasVendidos').textContent = mostSoldProducts;
+            document.getElementById('reportClientesActivos').textContent = activeClients;
+
+            // Create category chart
+            const categoryData = products.reduce((acc, product) => {
+                acc[product.category] = (acc[product.category] || 0) + 1;
+                return acc;
+            }, {});
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: ['#667eea', '#4CAF50', '#FF9800', '#f44336']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Export functionality
+        document.getElementById('exportReportBtn').addEventListener('click', function() {
+            const reportData = {
+                fecha: new Date().toISOString().split('T')[0],
+                productos: products.length,
+                clientes: clients.length,
+                ordenesProduccion: productions.length,
+                stockBajo: products.filter(p => p.stock <= p.minStock).length
+            };
+
+            const dataStr = JSON.stringify(reportData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `reporte_${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        });
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date for production form
+            document.getElementById('productionDate').value = new Date().toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>
