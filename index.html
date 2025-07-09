@@ -771,12 +771,15 @@
         mobileMenuBtn.addEventListener('click', toggleMobileMenu);
 
         // Navigation
-        document.querySelectorAll('[data-section]').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                showSection(e.target.dataset.section);
+        function initializeNavigation() {
+            document.querySelectorAll('[data-section]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = e.target.closest('[data-section]').dataset.section;
+                    showSection(section);
+                });
             });
-        });
+        }
 
         // Functions
         function handleLogin(e) {
@@ -786,14 +789,18 @@
 
             if (users[username] && users[username].password === password) {
                 currentUser = { username, ...users[username] };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
                 document.getElementById('currentUser').textContent = currentUser.username;
                 document.getElementById('userRole').textContent = currentUser.role;
                 
                 loginScreen.style.display = 'none';
                 mainApp.style.display = 'block';
                 
+                // Initialize navigation after showing main app
+                initializeNavigation();
+                
                 showSection('dashboard');
-                updateDashboard();
             } else {
                 alert('Usuario o contraseña incorrectos');
             }
@@ -801,6 +808,7 @@
 
         function handleLogout() {
             currentUser = null;
+            localStorage.removeItem('currentUser');
             mainApp.style.display = 'none';
             loginScreen.style.display = 'flex';
             document.getElementById('loginForm').reset();
@@ -1237,6 +1245,21 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Set default date for production form
             document.getElementById('productionDate').value = new Date().toISOString().split('T')[0];
+            
+            // Initialize navigation
+            initializeNavigation();
+            
+            // Check if user is already logged in (for development)
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('currentUser').textContent = currentUser.username;
+                document.getElementById('userRole').textContent = currentUser.role;
+                
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+                showSection('dashboard');
+            }
         });
     </script>
 </body>
