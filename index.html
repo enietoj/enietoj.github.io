@@ -825,7 +825,8 @@
         }
 
         function toggleMobileMenu() {
-            sidebar.classList.toggle('mobile-hidden');
+        if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('mobile-hidden');;
         }
 
         function showSection(sectionName) {
@@ -856,7 +857,8 @@
             document.getElementById('pageTitle').textContent = titles[sectionName];
             
             // Hide mobile menu
-            sidebar.classList.add('mobile-hidden');
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('mobile-hidden');
             
             // Load section specific data
             switch(sectionName) {
@@ -1271,6 +1273,13 @@
                 showSection('dashboard');
             }
         });
+            window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+        sidebar.classList.remove('mobile-hidden');
+    } else {
+        sidebar.classList.add('mobile-hidden');
+    }
+});
     </script>
 </body>
 </html>
