@@ -379,16 +379,6 @@
         }
 
         /* Mobile Responsive */
-        @media (min-width: 769px) {
-            .sidebar {
-                transform: translateX(0) !important;
-        }
-    
-            .mobile-menu-btn {
-                display: none !important;
-            }
-        }
-        
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -825,8 +815,7 @@
         }
 
         function toggleMobileMenu() {
-        if (window.innerWidth <= 768) {
-        sidebar.classList.toggle('mobile-hidden');;
+            sidebar.classList.toggle('mobile-hidden');
         }
 
         function showSection(sectionName) {
@@ -857,8 +846,7 @@
             document.getElementById('pageTitle').textContent = titles[sectionName];
             
             // Hide mobile menu
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.add('mobile-hidden');
+            sidebar.classList.add('mobile-hidden');
             
             // Load section specific data
             switch(sectionName) {
@@ -1273,78 +1261,6 @@
                 showSection('dashboard');
             }
         });
-            window.addEventListener('resize', function() {
-    if (window.innerWidth > 768) {
-        sidebar.classList.remove('mobile-hidden');
-    } else {
-        sidebar.classList.add('mobile-hidden');
-    }
-});
     </script>
 </body>
-</html>.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 998;
-    display: none;
-}
-
-.sidebar-overlay.show {
-    display: block;
-}.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 998;
-    display: none;
-}
-
-.sidebar-overlay.show {
-    display: block;
-}.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 998;
-    display: none;
-}
-
-.sidebar-overlay.show {
-    display: block;
-}.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 998;
-    display: none;
-}
-
-.sidebar-overlay.show {
-    display: block;
-}.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 998;
-    display: none;
-}
-
-.sidebar-overlay.show {
-    display: block;
-}
+</html>
